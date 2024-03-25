@@ -3,6 +3,8 @@ package cast256
 import (
     "strconv"
     "crypto/cipher"
+
+    "github.com/pedroalbanese/cast256/internal/subtle"
 )
 
 const BlockSize = 16
@@ -46,6 +48,10 @@ func (this *cast256Cipher) Encrypt(dst, src []byte) {
         panic("cryptobin/cast256: output not full block")
     }
 
+    if subtle.InexactOverlap(dst[:BlockSize], src[:BlockSize]) {
+        panic("cryptobin/cast256: invalid buffer overlap")
+    }
+
     this.encrypt(dst, src)
 }
 
@@ -56,6 +62,10 @@ func (this *cast256Cipher) Decrypt(dst, src []byte) {
 
     if len(dst) < BlockSize {
         panic("cryptobin/cast256: output not full block")
+    }
+
+    if subtle.InexactOverlap(dst[:BlockSize], src[:BlockSize]) {
+        panic("cryptobin/cast256: invalid buffer overlap")
     }
 
     this.decrypt(dst, src)
